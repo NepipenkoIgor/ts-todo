@@ -1,0 +1,15 @@
+{
+  "name": "final-typescript-project",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "start": "./node_modules/typescript/bin/tsc ./app.ts --module commonjs && node app"
+  },
+  "author": "Igor Nepipenko",
+  "license": "ISC",
+  "dependencies": {
+    "typescript": "*",
+    "express": "*"
+  }
+}
