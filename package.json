@@ -1,10 +1,10 @@
 {
-  "name": "final-typescript-project",
-  "version": "1.0.0",
+  "name": "todo",
+  "version": "0.0.4",
   "description": "",
   "main": "app.js",
   "scripts": {
-    "start": "./node_modules/typescript/bin/tsc ./app.ts --module commonjs && node app"
+    "start": "./node_modules/typescript/bin/tsc && node app"
   },
   "author": "Igor Nepipenko",
   "license": "ISC",
