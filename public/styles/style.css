@@ -9,64 +9,65 @@ main{
     height: 700px;
     font-family: 'Indie Flower', cursive!important;
 }
-main>section{
-    background-color: #FBFBFB;
+.todo-widget{
+    background-color: none;
     width:400px;
     align-self: center;
-}
-main>section>input{
     font-size: 27px;
+}
+.todo-widget>.task-input{
+    font-size: 28px;
     width:100%;
     height: 50px;
     box-shadow: 0 0 10px rgba(0,0,0,0.5);
     border: none;
     outline: none;
-}
-main>section>section{
-    font-size: 27px;
-}
-
-#task{
+    margin-bottom: 12px;
     font-family: 'Indie Flower', cursive!important;
     padding-left: 30px;
 }
-main>section>section>.full-task{
+.todo-widget>.tasks-box>.full-task{
     border-bottom: 1px solid;
     display: flex;
     justify-content: space-around;
     align-items: center;
 }
-main>section>section>.full-task:hover .task-remove{
+.todo-widget>.tasks-box>.full-task:hover .task-remove{
     opacity: 0.5;
 }
-main>section>section>.full-task>.active-task,
-main>section>section>.full-task>.unactive-task{
+.todo-widget>.tasks-box>.full-task>.active-task,
+.todo-widget>.tasks-box>.full-task>.unactive-task{
     width: 20px;
     height: 20px;
     cursor:pointer;
 }
-main>section>section>.full-task>.unactive-task{
+.todo-widget>.tasks-box>.full-task>.unactive-task{
  border: 1px solid green;
     border-radius: 50%;
 }
-main>section>section>.full-task>.unactive-task:before{
+.todo-widget>.tasks-box>.full-task>.unactive-task:before{
 content:url('/img/success.png');
 width:100%;
 }
-main>section>section>.full-task>.active-task{
+.todo-widget>.tasks-box>.full-task>.active-task{
     border: 1px solid;
     border-radius: 50%;
 }
-main>section>section>.full-task>.task-name,
-main>section>section>.full-task>.task-name-line{
+.todo-widget>.tasks-box>.full-task>.task-name,
+.todo-widget>.tasks-box>.full-task>.task-name-line{
     width:  325px;
-       cursor:pointer;
+    background-color:#F1F1F1;
+    font-family: 'Indie Flower', cursive!important;
+    font-size: 27px;
+    border: none;
+    outline: none;
+    cursor:pointer;
 }
-main>section>section>.full-task>.task-name-line{
+.todo-widget>.tasks-box>.full-task>.task-name-line{
     text-decoration:line-through;
 }
 
-main>section>section>.full-task>.task-remove{
+.todo-widget>.tasks-box>.full-task>.task-remove{
     opacity: 0;
     width: 20px;
      display: inline-block;
@@ -77,33 +78,38 @@ main>section>section>.full-task>.task-remove{
      transition: opacity  0.5s ease-out ;
 }
 
-main>section>section>.full-task>.task-remove:hover{
+.todo-widget>.tasks-box>.full-task>.task-remove:hover{
     opacity:1;
 }
-
-main>section>section>.full-task>.task-remove:before{
+.todo-widget>.tasks-box>.full-task>.task-remove:before{
     content: "×";
 }
 
-main>section>#control-panel{
-    border-bottom: 1px solid;
+.todo-widget>.control-panel{
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
     justify-content: space-around;
     align-items: center;
 }
-main>section>#control-panel>.count{
-    width: 70px;
-    height: 20px;
-   font-size: 16px;
+.todo-widget>.control-panel.visibility{
+      border-bottom: 1px solid;
 }
-main>section>#control-panel>.controll{
+.todo-widget>.control-panel.hidden{
+      border-bottom: none;
+}
+.todo-widget>.control-panel>.count{
+    width: 25%;
+    height: 20px;
+    font-size: 16px;
+    text-decoration: none!important;
+}
+.todo-widget>.control-panel>.controll{
     cursor:pointer;
 }
-main>section>#control-panel>.controll:hover{
+.todo-widget>.control-panel>.controll:hover{
     text-decoration: underline;
 }
-main>section>#control-panel>.active-control{
+.todo-widget>.control-panel>.active-control{
      text-decoration: underline;
 }

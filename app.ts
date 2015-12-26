@@ -7,11 +7,6 @@ import express = require('express');
 import fs = require('fs');
 var app = express();
 app.use(express.static(__dirname + '/public', { index: 'index.html' }));
-app.get('/painters', (req, res) => {
-    fs.readFile(__dirname + '/JSON/famousPainters.json', (err, data) => {
-        res.json({ success: !err, error: err, data: JSON.parse(data.toString()) })
-    });
-});
 app.listen(3000, () => {
-    console.log('good server start on port 3000')
+    console.log('server start on port 3000')
 })

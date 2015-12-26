@@ -7,21 +7,29 @@ interface Task {
     name: string,
     status: boolean
 }
-var allTasks: Task[] = [];
-var input: HTMLInputElement;
-var tasksBox: HTMLElement;
-var controlPanel: HTMLElement;
-var sortMode: string;
+let allTasks: Task[] = [];
+let input: HTMLInputElement;
+let tasksBox: HTMLElement;
+let controlPanel: HTMLElement;
+let sortMode: string;
 window.onload = () => {
-    input = <HTMLInputElement>document.querySelector('#task')
-    tasksBox = <HTMLElement>document.querySelector('#tasks-box');
-    controlPanel = <HTMLElement>document.querySelector('#control-panel');
+    input = <HTMLInputElement>document.querySelector('.task-input')
+    tasksBox = <HTMLElement>document.querySelector('.tasks-box');
+    controlPanel = <HTMLElement>document.querySelector('.control-panel');
     tasksBox.addEventListener('click', (e) => {
-        var target = <HTMLElement>e.target
-        var taskNode = <HTMLElement>target.parentNode
-        var dataset = <any>taskNode.dataset
-        var className = target.classList[0];
-        var index = allTasks.findIndex((task: Task):boolean =>{
+        let target = <HTMLElement>e.target
+        let taskNode = <HTMLElement>target.parentNode
+        let dataset = <any>taskNode.dataset
+        let className = target.classList[0];
+        if (className === 'task-name' || className === 'task-name-line') {
+            Array.prototype.forEach.call(tasksBox.children, (taskNode) => {
+                let input = taskNode.querySelector('input')
+                input.setAttribute('disabled', 'true')
+            })
+            target.removeAttribute('disabled')
+            return;
+        }
+        let index = allTasks.findIndex((task: Task): boolean => {
             return task.id === parseInt(dataset.id, 10)
         })
         if (className === 'active-task' || className === 'unactive-task') {
@@ -34,10 +42,12 @@ window.onload = () => {
         renderControlPanel(controlPanel, allTasks)
     })
     controlPanel.addEventListener('click', (e) => {
-        var target = <HTMLElement>e.target
-        var curentClass = target.classList;
-        var controls = controlPanel.children
-
+        let target = <HTMLElement>e.target
+        let curentClass = target.classList;
+        let controls = controlPanel.children;
+        if(curentClass[0] === 'count'){
+            return;
+        }
         Array.prototype.forEach.call(controls, (control) => {
             let classList = control.classList
             classList.remove('active-control')
@@ -53,8 +63,20 @@ window.onload = () => {
         curentClass.add('active-control')
 
     })
-    input.addEventListener('keypress', (e) => {
+    tasksBox.addEventListener('keypress', (e) => {
         if (e.keyCode === 13) {
+            let target = <HTMLInputElement>e.target;
+            let taskNode = <HTMLElement>target.parentNode;
+            let dataset = <any>taskNode.dataset;
+            let index = allTasks.findIndex((task: Task): boolean => {
+                return task.id === parseInt(dataset.id, 10)
+            })
+            allTasks[index].name = target.value;
+            target.setAttribute('disabled', 'true')
+        }
+    })
+    input.addEventListener('keypress', (e) => {
+        if (e.keyCode === 13&&input.value) {
             addTask(tasksBox, { id: Date.now(), name: input.value, status: true });
             input.value = '';
             renderTasks(tasksBox, allTasks, sortMode)
@@ -65,8 +87,8 @@ window.onload = () => {
 
 
 function renderTasks(tasksBox: HTMLElement, tasks: Task[], sortMode?: string) {
-    var content: string = '';
-    var currentTasks: Task[] = tasks;
+    let content: string = '';
+    let currentTasks: Task[] = tasks;
     if (sortMode === 'get-active') {
         currentTasks = allTasks.filter((task: Task): boolean=> {
             return task.status;
@@ -77,10 +99,10 @@ function renderTasks(tasksBox: HTMLElement, tasks: Task[], sortMode?: string) {
             return !task.status;
         })
     }
-    for (var task of currentTasks) {
+    for (let task of currentTasks) {
         content += `<div class="full-task" data-id='${task.id}'>
         <span class="${task.status ? "active-task" : "unactive-task"}"></span>
-        <span class="${task.status ? "task-name" : "task-name-line"}">${task.name}</span>
+        <input class="${task.status ? "task-name" : "task-name-line"}" value="${task.name}" disabled="true"/>
         <span class='task-remove'></span></div>`
     }
     tasksBox.innerHTML = content;
@@ -88,24 +110,30 @@ function renderTasks(tasksBox: HTMLElement, tasks: Task[], sortMode?: string) {
 function renderControlPanel(controlPanel: HTMLElement, tasks: Task[]) {
     if (!tasks.length) {
         controlPanel.innerHTML = '';
+        let classList = controlPanel.classList
+        classList.add('hidden')
+        classList.remove('visibility')
         return;
     }
-    var activeTask = tasks.filter((task: Task): boolean=> {
+    let activeTask = tasks.filter((task: Task): boolean=> {
         return task.status;
     })
-    var countMsg = `${activeTask.length} item left`
+    let countMsg = `${activeTask.length} item left`
     if (tasks.length && controlPanel.children.length) {
         let countField = <HTMLElement>controlPanel.querySelector('.count');
         countField.innerHTML = countMsg;
         return;
     }
-    var content: string = '';
+    let content: string = '';
     content += `
        <span class="count">${countMsg}</span>
        <span class="get-all controll active-control">All</span>
        <span class="get-active controll">Active</span>
        <span class="get-completed controll">Comleted</span>`
     controlPanel.innerHTML = content;
+    let classList = controlPanel.classList
+        classList.add('visibility')
+        classList.remove('hidden')
 }
 
 function addTask(tasksBox: HTMLElement, task: Task) {
