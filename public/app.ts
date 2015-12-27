@@ -1,5 +1,5 @@
 interface Array<T> {
-    findIndex(callbackfn: (value: T, index: number, array: T[]) => boolean, thisArg?: any): number;
+    findIndex(callbackfn:(value:T, index:number, array:T[]) => boolean, thisArg?:any): number;
 }
 
 interface Task {
@@ -7,135 +7,166 @@ interface Task {
     name: string,
     status: boolean
 }
-let allTasks: Task[] = [];
-let input: HTMLInputElement;
-let tasksBox: HTMLElement;
-let controlPanel: HTMLElement;
-let sortMode: string;
-window.onload = () => {
-    input = <HTMLInputElement>document.querySelector('.task-input')
-    tasksBox = <HTMLElement>document.querySelector('.tasks-box');
-    controlPanel = <HTMLElement>document.querySelector('.control-panel');
-    tasksBox.addEventListener('click', (e) => {
-        let target = <HTMLElement>e.target
-        let taskNode = <HTMLElement>target.parentNode
-        let dataset = <any>taskNode.dataset
-        let className = target.classList[0];
-        if (className === 'task-name' || className === 'task-name-line') {
-            Array.prototype.forEach.call(tasksBox.children, (taskNode) => {
-                let input = taskNode.querySelector('input')
-                input.setAttribute('disabled', 'true')
-            })
-            target.removeAttribute('disabled')
-            return;
-        }
-        let index = allTasks.findIndex((task: Task): boolean => {
-            return task.id === parseInt(dataset.id, 10)
-        })
-        if (className === 'active-task' || className === 'unactive-task') {
-            allTasks[index].status = !allTasks[index].status
-        }
-        if (className === 'task-remove') {
-            allTasks.splice(index, 1)
-        }
-        renderTasks(tasksBox, allTasks, sortMode)
-        renderControlPanel(controlPanel, allTasks)
-    })
-    controlPanel.addEventListener('click', (e) => {
-        let target = <HTMLElement>e.target
-        let curentClass = target.classList;
-        let controls = controlPanel.children;
-        if(curentClass[0] === 'count'){
-            return;
-        }
-        Array.prototype.forEach.call(controls, (control) => {
-            let classList = control.classList
-            classList.remove('active-control')
-        })
-        sortMode = null;
-        if (curentClass[0] === 'get-active') {
-            sortMode = 'get-active'
-        }
-        if (curentClass[0] === 'get-completed') {
-            sortMode = 'get-completed'
-        }
-        renderTasks(tasksBox, allTasks, sortMode)
-        curentClass.add('active-control')
 
-    })
-    tasksBox.addEventListener('keypress', (e) => {
-        if (e.keyCode === 13) {
-            let target = <HTMLInputElement>e.target;
-            let taskNode = <HTMLElement>target.parentNode;
-            let dataset = <any>taskNode.dataset;
-            let index = allTasks.findIndex((task: Task): boolean => {
-                return task.id === parseInt(dataset.id, 10)
-            })
-            allTasks[index].name = target.value;
-            target.setAttribute('disabled', 'true')
-        }
-    })
-    input.addEventListener('keypress', (e) => {
-        if (e.keyCode === 13&&input.value) {
-            addTask(tasksBox, { id: Date.now(), name: input.value, status: true });
-            input.value = '';
-            renderTasks(tasksBox, allTasks, sortMode)
-            renderControlPanel(controlPanel, allTasks)
-        }
-    })
-}
-
-
-function renderTasks(tasksBox: HTMLElement, tasks: Task[], sortMode?: string) {
-    let content: string = '';
-    let currentTasks: Task[] = tasks;
-    if (sortMode === 'get-active') {
-        currentTasks = allTasks.filter((task: Task): boolean=> {
-            return task.status;
-        })
+@TodoComponent({
+    elem: 'main'
+})
+class Todo {
+    private allTasks:Task[] = [];
+    private tasksBox:HTMLElement;
+    private controlPanel:HTMLElement;
+    private taskInput:HTMLInputElement;
+    private sortMode:string;
+    constructor() {
+        this.tasksBox.addEventListener('click', this.processingTasksList.bind(this));
+        this.controlPanel.addEventListener('click', this.processingControlPanel.bind(this));
+        this.tasksBox.addEventListener('keypress', this.enableTaskEditing.bind(this));
+        this.taskInput.addEventListener('keypress', this.taskToList.bind(this));
     }
-    if (sortMode === 'get-completed') {
-        currentTasks = allTasks.filter((task: Task): boolean=> {
-            return !task.status;
-        })
+    private addTask(task:Task):void {
+        this.allTasks.push(task);
     }
-    for (let task of currentTasks) {
-        content += `<div class="full-task" data-id='${task.id}'>
+
+    private renderTasks(tasks:Task[], sortMode?:string) {
+        let content:string = '';
+        let currentTasks:Task[] = tasks;
+        if (sortMode === 'get-active') {
+            currentTasks = this.allTasks.filter((task:Task):boolean=> {
+                return task.status;
+            })
+        }
+        if (sortMode === 'get-completed') {
+            currentTasks = this.allTasks.filter((task:Task):boolean=> {
+                return !task.status;
+            })
+        }
+        for (let task of currentTasks) {
+            content += `<div class="full-task" data-id='${task.id}'>
         <span class="${task.status ? "active-task" : "unactive-task"}"></span>
         <input class="${task.status ? "task-name" : "task-name-line"}" value="${task.name}" disabled="true"/>
         <span class='task-remove'></span></div>`
+        }
+        this.tasksBox.innerHTML = content;
     }
-    tasksBox.innerHTML = content;
-}
-function renderControlPanel(controlPanel: HTMLElement, tasks: Task[]) {
-    if (!tasks.length) {
-        controlPanel.innerHTML = '';
-        let classList = controlPanel.classList
-        classList.add('hidden')
-        classList.remove('visibility')
-        return;
-    }
-    let activeTask = tasks.filter((task: Task): boolean=> {
-        return task.status;
-    })
-    let countMsg = `${activeTask.length} item left`
-    if (tasks.length && controlPanel.children.length) {
-        let countField = <HTMLElement>controlPanel.querySelector('.count');
-        countField.innerHTML = countMsg;
-        return;
-    }
-    let content: string = '';
-    content += `
+
+    private renderControlPanel(tasks:Task[]) {
+        if (!tasks.length) {
+            this.controlPanel.innerHTML = '';
+            let classList = this.controlPanel.classList;
+            classList.add('hidden');
+            classList.remove('visibility');
+            return;
+        }
+        let activeTask = tasks.filter((task:Task):boolean=> {
+            return task.status;
+        });
+        let countMsg = `${activeTask.length} item left`;
+        if (tasks.length && this.controlPanel.children.length) {
+            let countField = <HTMLElement>this.controlPanel.querySelector('.count');
+            countField.innerHTML = countMsg;
+            return;
+        }
+        let content:string = '';
+        content += `
        <span class="count">${countMsg}</span>
        <span class="get-all controll active-control">All</span>
        <span class="get-active controll">Active</span>
-       <span class="get-completed controll">Comleted</span>`
-    controlPanel.innerHTML = content;
-    let classList = controlPanel.classList
-        classList.add('visibility')
+       <span class="get-completed controll">Comleted</span>`;
+        this.controlPanel.innerHTML = content;
+        let classList = this.controlPanel.classList;
+        classList.add('visibility');
         classList.remove('hidden')
+    }
+
+    private taskToList(e) {
+        if (e.keyCode === 13 && this.taskInput.value) {
+            this.addTask({id:Date.now(),name: this.taskInput.value,status: true});
+            this.taskInput.value = '';
+            this.renderTasks(this.allTasks, this.sortMode);
+            this.renderControlPanel(this.allTasks)
+        }
+    }
+
+    private enableTaskEditing(e):void {
+        if (e.keyCode !== 13) {
+            return;
+        }
+        let target = <HTMLInputElement>e.target;
+        let taskNode = <HTMLElement>target.parentNode;
+        let dataset = <any>taskNode.dataset;
+        let index =this.allTasks.findIndex((task:Task):boolean => {
+            return task.id === parseInt(dataset.id, 10)
+        });
+        this.allTasks[index].name = target.value;
+        target.setAttribute('disabled', 'true')
+    }
+
+    private processingControlPanel(e):void {
+        let target = <HTMLElement>e.target;
+        let curentClass = target.classList;
+        let controls = this.controlPanel.children;
+        if (curentClass[0] === 'count') {
+            return;
+        }
+        Array.prototype.forEach.call(controls, (control) => {
+            let classList = control.classList;
+            classList.remove('active-control')
+        });
+        this.sortMode = null;
+        if (curentClass[0] === 'get-active') {
+            this.sortMode = 'get-active'
+        }
+        if (curentClass[0] === 'get-completed') {
+            this.sortMode = 'get-completed'
+        }
+        this.renderTasks(this.allTasks, this.sortMode);
+        curentClass.add('active-control')
+    }
+
+    private processingTasksList(e):void {
+        let target = <HTMLElement>e.target;
+        let taskNode = <HTMLElement>target.parentNode;
+        let dataset = <any>taskNode.dataset;
+        let className = target.classList[0];
+        if (className === 'task-name' || className === 'task-name-line') {
+            Array.prototype.forEach.call(this.tasksBox.children, (taskNode) => {
+                let input = taskNode.querySelector('input');
+                input.setAttribute('disabled', 'true')
+            });
+            target.removeAttribute('disabled');
+            return;
+        }
+        let index = this.allTasks.findIndex((task:Task):boolean => {
+            return task.id === parseInt(dataset.id, 10)
+        });
+        if (className === 'active-task' || className === 'unactive-task') {
+            this.allTasks[index].status = !this.allTasks[index].status
+        }
+        if (className === 'task-remove') {
+            this.allTasks.splice(index, 1)
+        }
+        this.renderTasks(this.allTasks, this.sortMode);
+        this.renderControlPanel(this.allTasks)
+    }
+
 }
 
-function addTask(tasksBox: HTMLElement, task: Task) {
-    allTasks.push(task);
+interface ITodoComponent {
+    elem:string
 }
+function TodoComponent(opt:ITodoComponent) {
+    return function (constructor) {
+        let elem = <HTMLElement>document.querySelector(opt.elem);
+        elem.innerHTML = `<div class="todo-widget">
+            <input class="task-input" type="text">
+            <div class="tasks-box"></div>
+            <div class="control-panel"></div>
+        </div>`;
+        constructor.prototype.taskInput = elem.querySelector('.task-input');
+        constructor.prototype.tasksBox = elem.querySelector('.tasks-box');
+        constructor.prototype.controlPanel = elem.querySelector('.control-panel');
+    }
+}
+window.onload = () => {
+ new Todo();
+};
